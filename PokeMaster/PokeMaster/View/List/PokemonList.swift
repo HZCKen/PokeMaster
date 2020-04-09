@@ -10,13 +10,15 @@ import SwiftUI
 
 struct PokemonList: View {
  
-@State var expandingIndex: Int?
+    @State var expandingIndex: Int?
+    
     var body: some View {
         
 
         ScrollView {
             ForEach(PokemonViewModel.all) { pokemon in
-                PokemonInfoRow(model: pokemon, expanded: pokemon.id == self.expandingIndex)
+                PokemonInfoRow(model: pokemon,
+                               expanded: pokemon.id == self.expandingIndex)
                     .onTapGesture {
                         if self.expandingIndex == pokemon.id  {
                             self.expandingIndex = nil
@@ -25,8 +27,13 @@ struct PokemonList: View {
                         }
                 }
             }
-        }
-        
+        }.overlay (
+            VStack {
+                Spacer()
+                PokemonInfoPanel(model: .sample(id: 1))
+            }
+            .edgesIgnoringSafeArea(.bottom)
+        )
     }
 }
 

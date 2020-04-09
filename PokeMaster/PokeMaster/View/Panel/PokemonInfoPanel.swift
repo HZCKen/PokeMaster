@@ -36,7 +36,15 @@ struct PokemonInfoPanel: View {
             Header(model: model)
             pokemonDescription
             Divider()
+            AbilityList(model: model, abilityModels: abilities)
         }
+        .padding(EdgeInsets(top: 12,
+                            leading: 30,
+                            bottom: 30,
+                            trailing: 30))
+            .background(BlurView())
+            .cornerRadius(20)
+//            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
    
     }
 }
