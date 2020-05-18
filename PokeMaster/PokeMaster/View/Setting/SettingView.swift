@@ -31,8 +31,17 @@ class Settings: ObservableObject {
 
 
 struct SettingView: View {
-    @ObservedObject var settings = Settings()
-
+//    @ObservedObject var settings = Settings()
+    
+    @EnvironmentObject var store: Store
+    
+    var settingsBinding: Binding<AppState.Settings> {
+        $store.appState.settings
+    }
+    var settings: AppState.Settings {
+       store.appState.settings
+     }
+    
     var body: some View {
         
         Form {
@@ -46,41 +55,51 @@ struct SettingView: View {
     
     var accountSection: some View {
         Section(header: Text("账户")) {
-            Picker(selection: $settings.accountBehavior, label: Text("")) {
-                ForEach(Settings.AccountBehavior.allCases, id: \.self) {
-                    Text($0.text)
+            
+            if settings.loginUser == nil {
+                Picker(selection: settingsBinding.accountBehavior, label: Text("")) {
+                    ForEach(AppState.Settings.AccountBehavior.allCases, id: \.self) {
+                        Text($0.text)
+                    }
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                
+                TextField("电子邮箱", text: settingsBinding.email)
+                
+                SecureField("密码", text: settingsBinding.password)
+                
+                if settings.accountBehavior == .register {
+                    SecureField("确定密码", text: settingsBinding.verifyPassword)
+                }
+                
+                Button(settings.accountBehavior.text) {
+                    print(self.settings.accountBehavior.text)
+                }
+            } else {
+                Text(settings.loginUser!.email)
+                Button("注销") {
+                    print("注销")
                 }
             }
-            .pickerStyle(SegmentedPickerStyle())
-
-            TextField("电子邮箱", text: $settings.email)
             
-            SecureField("密码", text: $settings.password)
             
-            if settings.accountBehavior == .register {
-                SecureField("确定密码", text: $settings.verifyPassword)
-            }
-            
-            Button(settings.accountBehavior.text) {
-                print(self.settings.accountBehavior.text)
-            }
         }
     }
     
     var optionSection: some View {
         Section(header: Text("选项")) {
-            Toggle(isOn: $settings.showEnglishName) {
+            Toggle(isOn: settingsBinding.showEnglishName) {
                  Text("显示英文")
             }
             
-            Picker(selection: $settings.sorting,
-                   label: Text("排序方式").foregroundColor(Color(#colorLiteral(red: 0.5725490451, green: 0, blue: 0.2313725501, alpha: 1)))) {
-                ForEach(Settings.Sorting.allCases, id: \.self) {
-                    Text($0.text).foregroundColor(.green)
+            Picker(selection: settingsBinding.sorting,
+                   label: Text("排序方式")) {
+                    ForEach(AppState.Settings.Sorting.allCases, id: \.self) {
+                    Text($0.text)
                 }
             }
             
-            Toggle(isOn: $settings.showFavoriteOnly) {
+            Toggle(isOn: settingsBinding.showFavoriteOnly) {
                 Text("只显示收藏")
             }
 
@@ -102,7 +121,8 @@ struct SettingView: View {
 
 
 
-extension Settings.Sorting {
+//extension Settings.Sorting {
+extension AppState.Settings.Sorting {
     var text: String {
         switch self {
         case .id: return "ID"
@@ -113,7 +133,8 @@ extension Settings.Sorting {
     }
 }
 
-extension Settings.AccountBehavior {
+//extension Settings.AccountBehavior {
+extension AppState.Settings.AccountBehavior {
     var text: String {
         switch self {
         case .register: return "注册"
@@ -124,6 +145,6 @@ extension Settings.AccountBehavior {
 
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingView()
+        SettingView().environmentObject(Store())
     }
 }
